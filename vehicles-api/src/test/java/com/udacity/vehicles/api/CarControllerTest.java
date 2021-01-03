@@ -24,8 +24,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.net.URI;
 import java.util.Collections;
 
-import static com.udacity.vehicles.domain.Condition.NEW;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -48,7 +48,7 @@ public class CarControllerTest {
     private MockMvc mvc;
 
     @Autowired
-    private JacksonTester<Car> json;
+    private JacksonTester<Car> carJacksonTester;
 
     @MockBean
     private CarService carService;
@@ -80,7 +80,7 @@ public class CarControllerTest {
         Car car = getCar();
         this.mvc.perform(
                 post(new URI("/cars"))
-                        .content(this.json.write(car).getJson())
+                        .content(this.carJacksonTester.write(car).getJson())
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .accept(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isCreated());
@@ -101,7 +101,6 @@ public class CarControllerTest {
         Car car = getCar();
         this.mvc.perform(
                 get(new URI("/cars"))
-                        .content(this.json.write(car).getJson())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -159,7 +158,11 @@ public class CarControllerTest {
          *       when the 'delete' method is called from the Car Controller. This
          *       should utilize the car from 'getCar()' below.
          */
-        this.mvc.perform(delete("/cars/1")).andExpect(status().isNoContent());
+        this.mvc.perform(
+                delete(new URI("/cars/1"))
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .accept(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isNoContent());
 
     }
 
@@ -170,22 +173,20 @@ public class CarControllerTest {
     @Test
     public void updateCarTest() throws Exception {
         Car car = getCar();
-        car.setCondition(NEW);
         car.getDetails().setNumberOfDoors(3);
         car.getDetails().setFuelType("Hydrogen");
         car.getDetails().setMileage(43390);
         car.getDetails().setExternalColor("black");
         this.mvc.perform(
                 put(new URI("/cars/1"))
-                        .content(this.json.write(car).getJson())
+                        .content(this.carJacksonTester.write(car).getJson())
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .accept(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.condition", is(NEW)))
-                .andExpect(jsonPath("$.details.numberOfDoors", is(3)))
-                .andExpect(jsonPath("$.details.fuelType", is("Hydrogen")))
-                .andExpect(jsonPath("$.details.mileage", is(43390)))
-                .andExpect(jsonPath("$.details.externalColor", is("black")));
+                .andExpect(status().isOk());
+        assertEquals(Integer.valueOf(3), car.getDetails().getNumberOfDoors());
+        assertEquals("Hydrogen", car.getDetails().getFuelType());
+        assertEquals(Integer.valueOf(43390), car.getDetails().getMileage());
+        assertEquals("black", car.getDetails().getExternalColor());
     }
 
     /**

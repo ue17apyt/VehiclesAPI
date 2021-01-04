@@ -11,6 +11,7 @@ import com.udacity.vehicles.service.CarService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -28,6 +29,8 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -84,6 +87,8 @@ public class CarControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .accept(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isCreated());
+        ArgumentCaptor<Car> carArgumentCaptor = ArgumentCaptor.forClass(Car.class);
+        verify(this.carService, times(1)).save(carArgumentCaptor.capture());
     }
 
     /**
@@ -114,6 +119,7 @@ public class CarControllerTest {
                 .andExpect(jsonPath("$._embedded.carList[0].details.modelYear", is(2018)))
                 .andExpect(jsonPath("$._embedded.carList[0].details.productionYear", is(2018)))
                 .andExpect(jsonPath("$._embedded.carList[0].details.externalColor", is("white")));
+        verify(this.carService, times(1)).list();
 
     }
 
@@ -143,6 +149,7 @@ public class CarControllerTest {
                 .andExpect(jsonPath("$.details.modelYear", is(2018)))
                 .andExpect(jsonPath("$.details.productionYear", is(2018)))
                 .andExpect(jsonPath("$.details.externalColor", is("white")));
+        verify(this.carService, times(1)).findById(Long.valueOf(1L));
 
     }
 
@@ -163,6 +170,7 @@ public class CarControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .accept(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isNoContent());
+        verify(this.carService, times(1)).delete(Long.valueOf(1L));
 
     }
 
@@ -187,6 +195,8 @@ public class CarControllerTest {
         assertEquals("Hydrogen", car.getDetails().getFuelType());
         assertEquals(Integer.valueOf(43390), car.getDetails().getMileage());
         assertEquals("black", car.getDetails().getExternalColor());
+        ArgumentCaptor<Car> carArgumentCaptor = ArgumentCaptor.forClass(Car.class);
+        verify(this.carService, times(1)).save(carArgumentCaptor.capture());
     }
 
     /**

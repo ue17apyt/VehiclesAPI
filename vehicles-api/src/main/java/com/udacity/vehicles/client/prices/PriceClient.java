@@ -34,7 +34,7 @@ public class PriceClient {
             Price price = this.client
                     .get()
                     .uri(uriBuilder -> uriBuilder
-                            .path("services/price/")
+                            .path("services/price")
                             .queryParam("vehicleId", vehicleId)
                             .build()
                     )
@@ -43,7 +43,7 @@ public class PriceClient {
                     .block();
             return String.format("%s %s", price.getCurrency(), price.getPrice());
         } catch (Exception exception) {
-            this.logger.error("Unexpected error retrieving price for vehicle {}", vehicleId, exception);
+            logger.error("Unexpected error retrieving price for vehicle {}", vehicleId, exception);
         }
         return "(consult price)";
     }

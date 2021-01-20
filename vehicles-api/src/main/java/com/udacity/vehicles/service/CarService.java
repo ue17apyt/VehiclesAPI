@@ -50,7 +50,7 @@ public class CarService {
          *       If it does not exist, throw a CarNotFoundException
          *       Remove the below code as part of your implementation.
          */
-        Car car = Optional.ofNullable(this.repository.getOne(id)).orElseThrow(CarNotFoundException::new);
+        Car car = Optional.of(this.repository.findById(id)).get().orElseThrow(CarNotFoundException::new);
 
         /**
          * TODO: Use the Pricing Web client you create in `VehiclesApiApplication`
@@ -59,7 +59,7 @@ public class CarService {
          * Note: The car class file uses @transient, meaning you will need to call
          *       the pricing service each time to get the price.
          */
-        car.setPrice(this.priceClient.getPrice(id));
+        car.setPrice(this.priceClient.getPrice(car.getId()));
 
         /**
          * TODO: Use the Maps Web client you create in `VehiclesApiApplication`
